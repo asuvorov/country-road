@@ -1,0 +1,21 @@
+"""
+(C) 2013-2025 Copycat Software, LLC. All Rights Reserved.
+"""
+
+# pylint: disable=wildcard-import
+# pylint: disable=unused-wildcard-import
+from .base import *
+
+
+# -----------------------------------------------------------------------------
+# --- Override Settings here.
+# -----------------------------------------------------------------------------
+DEBUG = True
+
+
+###############################################################################
+### DJANGO CACHING                                                          ###
+###############################################################################
+CACHE_MIDDLEWARE_ALIAS = config("CACHE_MIDDLEWARE_ALIAS", default="locmem")
+CACHE_MIDDLEWARE_SECONDS = config("CACHE_MIDDLEWARE_SECONDS", default=60)
+CACHE_MIDDLEWARE_KEY_PREFIX = config("CACHE_MIDDLEWARE_KEY_PREFIX", default="dev")
