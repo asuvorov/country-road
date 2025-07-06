@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% comment %}
+    Input Parameters:
+        :<request> - Request
+{% endcomment %}
+
+{% block title %}{{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="row g-3 p-3 border border-2 border-secondary">
+    <div class="col-12 p-3">
+        <div class="text-center">
+            <img src="https://www.nextgov.com/media/ps360/GIG/EDIT_SHARED/Logos/USDS_LOGO.jpg" height="100" lt="In God We Trust">
+        </div>
+    </div>
+
+    <div class="col-12 p-3 border border-2 border-primary">
+        <h4>You're looking good Today</h4><hr>
+
+        <form id="agencies_form">
+            <label for="agencies">Choose an Agency:</label>
+            <select id="agencies" name="agencies" >
+            {% for key, value in agencies.items %}
+                <option value="{{ key }}">{{ value.name }}</option>
+            {% endfor %}
+            </select>
+
+            <button id="agency_submit">Get Stats</button>
+        </form>
+
+        <hr>
+
+        <form id="titles_form">
+            <label for="titles">Choose a Title:</label>
+            <select id="titles" name="titles" >
+            {% for key, value in titles.items %}
+                <option value="{{ key }}">{{ value.number }} - {{ value.name }}</option>
+            {% endfor %}
+            </select>
+
+            <button id="title_submit">Get Stats</button>
+        </form>
+    </div>
+
+    <div class="col-12 p-3 border border-2 border-success">
+        <h4>Review Agencies</h4>
+        <table id="review_agencies_table" class="table">
+            <thead>
+                <tr>
+                    <th>Agency</th>
+                    <th>CFR Refs</th>
+                    <th>CFR Corrections</th>
+                    <th>Word Count</th>
+                    <th>Checksum</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+
+        <hr>
+
+        <h4>Review Titles</h4>
+        <table id="review_titles_table" class="table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Agency Refs</th>
+                    <th>CFR Corrections</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- START SCRIPT -->
+<script>
+    $(document).ready(function() {
+        $("#agency_submit").click(function() {
+            var event = window.event || event;
+            event.preventDefault();
+
+            var selectedVal = $("#agencies").val();  // Get the Value.
+            console.log("slug=", selectedVal);
+
+            $.get("{% url 'api-agency-stats' %}", {
+                "slug":  selectedVal
+            }).done(function (data) {
+                console.log("Success");
+                console.log("Data :", data);
+
+                if (data.length > 0) {
+                    $.each(data, function(index, value) {
+                        $("#review_agencies_table tbody").append(
+                            "<tr><td>" + value.agency + "</td><td>" + value.cfr_references + "</td><td>" + value.cfr_corrections + "</td><td>" + value.word_count + "</td><td>" + value.checksum + "</td></tr>"
+                        );
+                    });
+                }
+            }).fail(function (data) {
+                console.log("Fail");
+                console.log("Data :", data);
+
+                alert(data.responseJSON.message);
+            });
+        });
+
+        $("#title_submit").click(function() {
+            var event = window.event || event;
+            event.preventDefault();
+
+            var selectedVal = $("#titles").val();  // Get the Value.
+            console.log("slug=", selectedVal);
+
+            $.get("{% url 'api-title-stats' %}", {
+                "slug":  selectedVal
+            }).done(function (data) {
+                console.log("Success");
+                console.log("Data :", data);
+
+                if (data.length > 0) {
+                    $.each(data, function(index, value) {
+                        $("#review_titles_table tbody").append(
+                            "<tr><td>" + value.title + "</td><td>" + value.agency_references + "</td><td>" + value.cfr_corrections + "</td></tr>"
+                        );
+                    });
+                }
+            }).fail(function (data) {
+                console.log("Fail");
+                console.log("Data :", data);
+
+                alert(data.responseJSON.message);
+            });
+        });
+    });
+</script>
+<!--  END  SCRIPT -->
+{% endblock %}
